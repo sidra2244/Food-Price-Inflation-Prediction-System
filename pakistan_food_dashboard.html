@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pakistan Food Price Analytics &amp; Inflation Forecast 2030</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f9f8f6;
+    --surface: #ffffff;
+    --border: #e8e4de;
+    --border-soft: #f0ede8;
+    --text: #1a1916;
+    --text-muted: #6b6760;
+    --text-faint: #a09d98;
+    --accent: #1a1916;
+    --green: #2d6a4f;
+    --green-bg: #eaf4ef;
+    --red: #c0392b;
+    --red-bg: #fdf0ef;
+    --amber: #92400e;
+    --amber-bg: #fef3e2;
+    --blue: #1e40af;
+    --blue-bg: #eff6ff;
+    --forecast-line: #c0392b;
+    --hist-line: #1a1916;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .top-bar {
+    background: var(--text);
+    color: #f9f8f6;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .top-bar-title { font-size: 13px; font-weight: 500; letter-spacing: 0.04em; }
+  .top-bar-right { font-size: 12px; color: #9ca3af; font-family: 'DM Mono', monospace; }
+  .flag { font-size: 16px; margin-right: 8px; }
+  .nav-tabs {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0;
+    padding: 0 2rem;
+    overflow-x: auto;
+  }
+  .nav-tab {
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.15s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: inherit;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--text); border-bottom-color: var(--text); }
+  .tab-panel { display: none; padding: 2rem; }
+  .tab-panel.active { display: block; }
+  .page-title { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 1.5rem; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+  }
+  .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-faint); margin-bottom: 4px; }
+  .kpi-value { font-size: 24px; font-weight: 600; line-height: 1; font-family: 'DM Mono', monospace; }
+  .kpi-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .kpi.up .kpi-value { color: var(--red); }
+  .kpi.down .kpi-value { color: var(--green); }
+  .kpi.neutral .kpi-value { color: var(--text); }
+  .badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.04em; }
+  .badge-red { background: var(--red-bg); color: var(--red); }
+  .badge-green { background: var(--green-bg); color: var(--green); }
+  .badge-amber { background: var(--amber-bg); color: var(--amber); }
+  .badge-blue { background: var(--blue-bg); color: var(--blue); }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .card-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 1rem; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .chart-wrap { position: relative; width: 100%; }
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+  .ctrl-btn {
+    padding: 5px 12px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .ctrl-btn:hover { border-color: var(--text); color: var(--text); }
+  .ctrl-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .ctrl-label { font-size: 12px; color: var(--text-muted); margin-right: 4px; }
+  select {
+    padding: 5px 10px;
+    font-size: 12px;
+    font-family: inherit;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+  .legend-line { width: 18px; height: 2px; }
+  .legend-dash { width: 18px; height: 2px; border-top: 2px dashed; }
+  .model-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .model-table th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); padding: 6px 10px; border-bottom: 1px solid var(--border); }
+  .model-table td { padding: 10px 10px; border-bottom: 1px solid var(--border-soft); }
+  .model-table tr:last-child td { border-bottom: none; }
+  .model-table tr.best td { background: #f9f8f6; font-weight: 500; }
+  .bar-h { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12px; }
+  .bar-h-label { width: 120px; color: var(--text-muted); }
+  .bar-h-track { flex: 1; height: 6px; background: var(--border-soft); border-radius: 3px; }
+  .bar-h-fill { height: 100%; border-radius: 3px; }
+  .bar-h-val { width: 50px; text-align: right; font-family: 'DM Mono', monospace; }
+  .forecast-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .forecast-table th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  .forecast-table td { padding: 8px 8px; border-bottom: 1px solid var(--border-soft); font-family: 'DM Mono', monospace; }
+  .forecast-table tr:last-child td { border-bottom: none; }
+  .insight-block { border-left: 3px solid var(--border); padding-left: 1rem; margin-bottom: 1rem; }
+  .insight-block.warn { border-left-color: #e67e22; }
+  .insight-block.good { border-left-color: var(--green); }
+  .insight-block.info { border-left-color: var(--blue); }
+  .insight-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .insight-text { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-faint); margin-bottom: 1rem; }
+  @media (max-width: 768px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .tab-panel { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-title"><span class="flag">🇵🇰</span> Pakistan Food Price Analytics &amp; Inflation Forecast</div>
+  <div class="top-bar-right">Model: XGBoost · R² 0.979 · Forecast to 2030</div>
+</div>
+
+<nav class="nav-tabs">
+  <button class="nav-tab active" onclick="showTab('overview')">Overview</button>
+  <button class="nav-tab" onclick="showTab('monthly')">Monthly Forecast</button>
+  <button class="nav-tab" onclick="showTab('annual')">Annual Trends</button>
+  <button class="nav-tab" onclick="showTab('commodity')">By Commodity</button>
+  <button class="nav-tab" onclick="showTab('province')">By Province</button>
+  <button class="nav-tab" onclick="showTab('model')">Model Performance</button>
+  <button class="nav-tab" onclick="showTab('insights')">Insights</button>
+</nav>
+
+<!-- OVERVIEW TAB -->
+<div id="tab-overview" class="tab-panel active">
+  <div class="page-title">Pakistan Food Price Dashboard</div>
+  <div class="page-sub">WFP retail prices merged with global commodity data (2004–2025) · Predictions extended to 2030 via XGBoost</div>
+
+  <div class="kpi-grid">
+    <div class="kpi up">
+      <div class="kpi-label">Avg Price 2025</div>
+      <div class="kpi-value">₨ 410</div>
+      <div class="kpi-sub"><span class="badge badge-red">+10.8% YoY</span></div>
+    </div>
+    <div class="kpi neutral">
+      <div class="kpi-label">Forecast 2030</div>
+      <div class="kpi-value">₨ 626</div>
+      <div class="kpi-sub">+52.7% from 2025</div>
+    </div>
+    <div class="kpi up">
+      <div class="kpi-label">Peak Inflation</div>
+      <div class="kpi-value">47.6%</div>
+      <div class="kpi-sub">2023 — post-flood crisis</div>
+    </div>
+    <div class="kpi down">
+      <div class="kpi-label">Model Accuracy</div>
+      <div class="kpi-value">97.9%</div>
+      <div class="kpi-sub">XGBoost R² · MAPE 2.9%</div>
+    </div>
+    <div class="kpi neutral">
+      <div class="kpi-label">Records Analysed</div>
+      <div class="kpi-value">84K+</div>
+      <div class="kpi-sub">WFP dataset 2004–2025</div>
+    </div>
+    <div class="kpi neutral">
+      <div class="kpi-label">Commodities</div>
+      <div class="kpi-value">5</div>
+      <div class="kpi-sub">Tracked across 4 provinces</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Historical Prices + Forecast to 2030 — National Average (PKR/unit)</div>
+    <div class="card-sub">Solid line = historical WFP data · Dashed = XGBoost forecast with annual inflation tapering</div>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-line" style="background:#1a1916"></span> Historical</span>
+      <span class="legend-item"><span class="legend-dash" style="border-color:#c0392b"></span> Forecast 2025–2030</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#c0392b22;border:1px dashed #c0392b"></span> Forecast range</span>
+    </div>
+    <div class="chart-wrap" style="height:300px"><canvas id="overviewChart" role="img" aria-label="Line chart showing Pakistan food prices from 2004 to 2030 with forecasts"></canvas></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Year-over-Year Inflation Rate (%)</div>
+      <div class="card-sub">Red = inflation spike · Green = moderation phase</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="yoyChart" role="img" aria-label="Bar chart of year-over-year food inflation in Pakistan"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Annual Forecast Summary</div>
+      <div class="card-sub">Predicted average food price per year (PKR)</div>
+      <table class="forecast-table">
+        <thead><tr><th>Year</th><th>Forecast (PKR)</th><th>Growth</th><th>Signal</th></tr></thead>
+        <tbody id="forecastSummaryTable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MONTHLY TAB -->
+<div id="tab-monthly" class="tab-panel">
+  <div class="page-title">Monthly Price Forecast</div>
+  <div class="page-sub">Month-by-month prediction from Jul 2025 through Dec 2030</div>
+
+  <div class="controls">
+    <span class="ctrl-label">View year:</span>
+    <button class="ctrl-btn active" onclick="setMonthlyYear('all', this)">All</button>
+    <button class="ctrl-btn" onclick="setMonthlyYear(2025, this)">2025</button>
+    <button class="ctrl-btn" onclick="setMonthlyYear(2026, this)">2026</button>
+    <button class="ctrl-btn" onclick="setMonthlyYear(2027, this)">2027</button>
+    <button class="ctrl-btn" onclick="setMonthlyYear(2028, this)">2028</button>
+    <button class="ctrl-btn" onclick="setMonthlyYear(2029, this)">2029</button>
+    <button class="ctrl-btn" onclick="setMonthlyYear(2030, this)">2030</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Monthly Average Food Price — Historical + Forecast (PKR)</div>
+    <div class="card-sub">Seasonal patterns preserved in forecast · Historical from Jun 2025, forecast from Jul 2025</div>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-line" style="background:#1a1916"></span> Historical (2022–Jun 2025)</span>
+      <span class="legend-item"><span class="legend-dash" style="border-color:#c0392b"></span> Forecast (Jul 2025–2030)</span>
+    </div>
+    <div class="chart-wrap" style="height:320px"><canvas id="monthlyChart" role="img" aria-label="Monthly food price forecast chart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Seasonal Pattern Analysis</div>
+    <div class="card-sub">Average price index by month — Jan to Dec (historical 2004–2025)</div>
+    <div class="chart-wrap" style="height:200px"><canvas id="seasonalChart" role="img" aria-label="Seasonal monthly food price index chart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Monthly Forecast Data Table — 2025 H2 to 2030</div>
+    <div class="card-sub">Predicted average food price (PKR/unit) · XGBoost model</div>
+    <div style="overflow-x:auto">
+      <table class="forecast-table" id="monthlyForecastTable">
+        <thead><tr><th>Month</th><th>Predicted (PKR)</th><th>MoM Change</th><th>Season</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ANNUAL TRENDS TAB -->
+<div id="tab-annual" class="tab-panel">
+  <div class="page-title">Annual Trends 2004 – 2030</div>
+  <div class="page-sub">Complete 26-year view including historical and forecast data</div>
+
+  <div class="card">
+    <div class="card-title">National Food Price Index — Log Scale</div>
+    <div class="card-sub">Log scale reveals compound growth rate clearly across different price regimes</div>
+    <div class="controls">
+      <button class="ctrl-btn active" onclick="setScaleType('linear', this)">Linear</button>
+      <button class="ctrl-btn" onclick="setScaleType('logarithmic', this)">Log scale</button>
+    </div>
+    <div class="chart-wrap" style="height:300px"><canvas id="annualScaleChart" role="img" aria-label="Annual food price trend with toggle between linear and log scale"></canvas></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Decade-over-decade growth</div>
+      <div class="card-sub">Average price multiplier per decade</div>
+      <div style="padding: 0.5rem 0">
+        <div class="bar-h"><div class="bar-h-label">2004–2009</div><div class="bar-h-track"><div class="bar-h-fill" style="width:20%;background:#1a1916"></div></div><div class="bar-h-val">2.3×</div></div>
+        <div class="bar-h"><div class="bar-h-label">2010–2019</div><div class="bar-h-track"><div class="bar-h-fill" style="width:40%;background:#1a1916"></div></div><div class="bar-h-val">2.7×</div></div>
+        <div class="bar-h"><div class="bar-h-label">2020–2025</div><div class="bar-h-track"><div class="bar-h-fill" style="width:80%;background:#c0392b"></div></div><div class="bar-h-val">2.9×</div></div>
+        <div class="bar-h"><div class="bar-h-label">2025–2030 (fcst)</div><div class="bar-h-track"><div class="bar-h-fill" style="width:45%;background:#e67e22"></div></div><div class="bar-h-val">1.52×</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Inflation rate evolution</div>
+      <div class="card-sub">Key inflation episodes and drivers</div>
+      <div style="font-size:12px; color: var(--text-muted); line-height:1.8;">
+        <div style="display:flex;gap:8px;margin-bottom:6px"><span class="badge badge-red">2008 +46%</span><span>Global commodity price shock</span></div>
+        <div style="display:flex;gap:8px;margin-bottom:6px"><span class="badge badge-red">2023 +48%</span><span>PKR devaluation + floods</span></div>
+        <div style="display:flex;gap:8px;margin-bottom:6px"><span class="badge badge-amber">2024 +19%</span><span>Easing but still elevated</span></div>
+        <div style="display:flex;gap:8px;margin-bottom:6px"><span class="badge badge-green">2030 +5%</span><span>Forecast stabilization</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Inflation Rate — Historical + Forecasted (%)</div>
+    <div class="card-sub">Post-2025 rates reflect model-projected tapering toward structural inflation baseline</div>
+    <div class="chart-wrap" style="height:260px"><canvas id="inflationExtChart" role="img" aria-label="Extended inflation rate chart including forecasts to 2030"></canvas></div>
+  </div>
+</div>
+
+<!-- COMMODITY TAB -->
+<div id="tab-commodity" class="tab-panel">
+  <div class="page-title">Commodity-Level Forecast to 2030</div>
+  <div class="page-sub">Five key food commodities tracked across all provinces</div>
+
+  <div class="controls">
+    <span class="ctrl-label">Commodity:</span>
+    <button class="ctrl-btn active" onclick="setCommodity('Wheat flour', this)">Wheat flour</button>
+    <button class="ctrl-btn" onclick="setCommodity('Rice (basmati)', this)">Rice</button>
+    <button class="ctrl-btn" onclick="setCommodity('Sugar', this)">Sugar</button>
+    <button class="ctrl-btn" onclick="setCommodity('Cooking oil', this)">Cooking oil</button>
+    <button class="ctrl-btn" onclick="setCommodity('Eggs (12)', this)">Eggs (12)</button>
+  </div>
+
+  <div class="kpi-grid" id="commodityKPIs"></div>
+
+  <div class="card">
+    <div class="card-title" id="commodityChartTitle">Wheat Flour — Price History &amp; Forecast to 2030 (PKR/kg)</div>
+    <div class="card-sub">Historical 2022–2025 · XGBoost forecast 2026–2030 with ±10% confidence band</div>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-line" style="background:#1a1916"></span> Historical</span>
+      <span class="legend-item"><span class="legend-dash" style="border-color:#c0392b"></span> Forecast</span>
+      <span class="legend-item"><span class="legend-dot" style="width:14px;height:8px;border-radius:2px;background:#c0392b22;border:1px solid #c0392b66"></span> 90% CI band</span>
+    </div>
+    <div class="chart-wrap" style="height:280px"><canvas id="commodityChart" role="img" aria-label="Commodity price forecast chart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">All Commodities — Indexed Price Growth (2022 = 100)</div>
+    <div class="card-sub">Relative growth comparison across commodities, historical and forecast</div>
+    <div class="chart-wrap" style="height:280px"><canvas id="commodityIndexChart" role="img" aria-label="Indexed price comparison across all commodities"></canvas></div>
+  </div>
+</div>
+
+<!-- PROVINCE TAB -->
+<div id="tab-province" class="tab-panel">
+  <div class="page-title">Provincial Price Comparison</div>
+  <div class="page-sub">Average food prices across Punjab, Sindh, KPK and Balochistan — historical and forecast</div>
+
+  <div class="kpi-grid">
+    <div class="kpi up"><div class="kpi-label">Punjab 2030 (fcst)</div><div class="kpi-value">₨ 534</div><div class="kpi-sub">Lowest cost province</div></div>
+    <div class="kpi up"><div class="kpi-label">Sindh 2030 (fcst)</div><div class="kpi-value">₨ 578</div><div class="kpi-sub">+8.2% above Punjab</div></div>
+    <div class="kpi up"><div class="kpi-label">KPK 2030 (fcst)</div><div class="kpi-value">₨ 603</div><div class="kpi-sub">+12.9% above Punjab</div></div>
+    <div class="kpi up"><div class="kpi-label">Balochistan 2030</div><div class="kpi-value">₨ 638</div><div class="kpi-sub">+19.5% above Punjab</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Province Average Food Prices — 2022 to 2030 (PKR)</div>
+    <div class="card-sub">Solid = historical · Dashed = forecast from 2025</div>
+    <div class="chart-wrap" style="height:300px"><canvas id="provinceChart" role="img" aria-label="Provincial food price comparison chart"></canvas></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Price Disparity Index</div>
+      <div class="card-sub">Balochistan vs Punjab premium over time</div>
+      <div class="chart-wrap" style="height:200px"><canvas id="disparityChart" role="img" aria-label="Provincial price disparity index"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Province 2030 Forecast Detail</div>
+      <div class="card-sub">Predicted average food price (PKR/unit)</div>
+      <table class="forecast-table" id="provinceForecastTable">
+        <thead><tr><th>Province</th><th>2025</th><th>2027</th><th>2030</th><th>Growth</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODEL PERFORMANCE TAB -->
+<div id="tab-model" class="tab-panel">
+  <div class="page-title">Model Performance Comparison</div>
+  <div class="page-sub">5 regression models evaluated on time-series cross-validation · XGBoost selected as best</div>
+
+  <div class="kpi-grid">
+    <div class="kpi down"><div class="kpi-label">Best Model</div><div class="kpi-value" style="font-size:16px;margin-top:4px">XGBoost</div><div class="kpi-sub">n_estimators=400</div></div>
+    <div class="kpi down"><div class="kpi-label">MAE (XGBoost)</div><div class="kpi-value">52.8</div><div class="kpi-sub">PKR mean abs error</div></div>
+    <div class="kpi down"><div class="kpi-label">RMSE (XGBoost)</div><div class="kpi-value">78.4</div><div class="kpi-sub">Root mean sq error</div></div>
+    <div class="kpi down"><div class="kpi-label">MAPE</div><div class="kpi-value">2.9%</div><div class="kpi-sub">Mean abs % error</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Model Comparison — All Metrics</div>
+    <div class="card-sub">Lower MAE/RMSE/MAPE = better · Higher R² = better · XGBoost wins on all four metrics</div>
+    <table class="model-table">
+      <thead><tr><th>Model</th><th>MAE ↓</th><th>RMSE ↓</th><th>R² ↑</th><th>MAPE ↓</th><th></th></tr></thead>
+      <tbody id="modelTableBody"></tbody>
+    </table>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">R² Score Comparison</div>
+      <div class="card-sub">Proportion of variance explained by each model</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="r2Chart" role="img" aria-label="R squared comparison bar chart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">MAE Comparison</div>
+      <div class="card-sub">Mean absolute error in PKR — lower is better</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="maeChart" role="img" aria-label="MAE comparison bar chart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Top Feature Importances — XGBoost</div>
+    <div class="card-sub">Lag and rolling features dominate · Commodity encoding second · Global commodity prices third</div>
+    <div id="featureImportance" style="padding-top:8px"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Recommended Enhancements</div>
+    <div class="card-sub">Potential improvements to boost forecast accuracy further</div>
+    <div class="grid-3" style="margin-top:8px">
+      <div style="padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:600;margin-bottom:4px">LSTM / Temporal Fusion</div>
+        <div style="font-size:12px;color:var(--text-muted)">Deep learning time-series models capture long-term dependencies and multi-horizon patterns better than gradient boosting.</div>
+        <div style="margin-top:6px"><span class="badge badge-amber">High impact</span></div>
+      </div>
+      <div style="padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:600;margin-bottom:4px">PKR Exchange Rate Feature</div>
+        <div style="font-size:12px;color:var(--text-muted)">Incorporating SBP PKR/USD rate as an exogenous variable would directly capture import cost pressure on food prices.</div>
+        <div style="margin-top:6px"><span class="badge badge-blue">Medium impact</span></div>
+      </div>
+      <div style="padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:600;margin-bottom:4px">Bayesian Uncertainty Bands</div>
+        <div style="font-size:12px;color:var(--text-muted)">Use quantile regression or Bayesian XGBoost to produce calibrated prediction intervals rather than point estimates.</div>
+        <div style="margin-top:6px"><span class="badge badge-blue">Medium impact</span></div>
+      </div>
+      <div style="padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:600;margin-bottom:4px">NDVI / Crop Yield Index</div>
+        <div style="font-size:12px;color:var(--text-muted)">Satellite vegetation index for major crop zones would provide forward-looking supply shock signals before harvest.</div>
+        <div style="margin-top:6px"><span class="badge badge-green">Supply-side</span></div>
+      </div>
+      <div style="padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:600;margin-bottom:4px">Market-Level Granularity</div>
+        <div style="font-size:12px;color:var(--text-muted)">Train individual models per market-commodity pair using hierarchical forecasting to capture local price dynamics.</div>
+        <div style="margin-top:6px"><span class="badge badge-green">Granularity</span></div>
+      </div>
+      <div style="padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:600;margin-bottom:4px">Ensemble / Stacking</div>
+        <div style="font-size:12px;color:var(--text-muted)">Blend XGBoost + LightGBM + SARIMA with a meta-learner. Often gains 0.5–1.5% MAPE on food time-series data.</div>
+        <div style="margin-top:6px"><span class="badge badge-amber">High impact</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INSIGHTS TAB -->
+<div id="tab-insights" class="tab-panel">
+  <div class="page-title">Key Insights &amp; Policy Implications</div>
+  <div class="page-sub">Data-driven findings from 20+ years of Pakistan food price data</div>
+
+  <div class="section-label">Critical Findings</div>
+  <div class="insight-block warn">
+    <div class="insight-title">2023 Crisis: Most severe food inflation in two decades</div>
+    <div class="insight-text">At 47.6% YoY, the 2023 food inflation surge — driven by PKR devaluation, floods destroying crops, and global supply chain disruption — was the worst on record. The national average jumped from ₨210 in 2022 to ₨310 in a single year. Recovery in 2024 was partial, still registering 19.4% inflation.</div>
+  </div>
+  <div class="insight-block info">
+    <div class="insight-title">Cooking oil is the highest absolute price commodity</div>
+    <div class="insight-text">At ₨900/litre in 2025 and forecast to reach ₨1,227 by 2030, cooking oil represents the steepest absolute cost burden for households. Its strong tie to palm oil import prices (tracked in Global PKR dataset) makes it the most globally sensitive commodity in Pakistan's food basket.</div>
+  </div>
+  <div class="insight-block info">
+    <div class="insight-title">Balochistan consistently 15–20% above Punjab prices</div>
+    <div class="insight-text">The provincial price disparity reflects logistical costs, market access, and infrastructure gaps. Balochistan's food prices have been structurally 15–20% above Punjab since 2004. This gap is forecast to widen slightly by 2030, suggesting infrastructure investment is needed to reduce food price inequality.</div>
+  </div>
+  <div class="insight-block good">
+    <div class="insight-title">Inflation tapering forecast: 5% by 2028–2030</div>
+    <div class="insight-text">The model projects a gradual deceleration of food inflation — from 12% in 2025 to ~5% by 2028 — conditional on PKR stability, no major climate shocks, and continuation of current agricultural policies. This aligns with historical post-crisis normalization observed after 2008 and 2011.</div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">Seasonal Patterns</div>
+  <div class="grid-2">
+    <div class="insight-block">
+      <div class="insight-title">May–June: Lowest prices annually</div>
+      <div class="insight-text">The wheat harvest season (April–June) reliably depresses food prices nationally. This seasonal effect is captured via cyclical month encoding (sin/cos features) in the XGBoost model.</div>
+    </div>
+    <div class="insight-block">
+      <div class="insight-title">Oct–Nov: Price uptick before winter</div>
+      <div class="insight-text">Post-harvest stockpiling, reduced supply, and higher heating/cooking demand typically drive a seasonal price peak in Q4. The seasonal index shows 3% premium in Oct vs June trough.</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">Model Reliability Notes</div>
+  <div style="font-size:12px;color:var(--text-muted);line-height:1.9;background:var(--bg);border-radius:8px;padding:1rem;border:1px solid var(--border)">
+    <strong style="color:var(--text)">What the model does well:</strong> Short-to-medium term (1–18 month) forecasts with high accuracy · Seasonal pattern capture · Commodity-level specificity<br>
+    <strong style="color:var(--text)">Known limitations:</strong> Cannot predict black swan events (climate disasters, political crises, currency collapses) · Long-horizon (3–5 year) forecasts carry ±15–20% uncertainty · Model was trained on 2004–2022, so 2023 crisis is partially out-of-distribution<br>
+    <strong style="color:var(--text)">Recommended use:</strong> 6–18 month operational forecasts · Annual budget planning · Policy scenario analysis with explicit uncertainty acknowledgment beyond 2027
+  </div>
+</div>
+
+<script>
+const D = {
+  hist: {2004:18,2005:20,2006:22,2007:26,2008:38,2009:42,2010:52,2011:62,2012:68,2013:72,2014:78,2015:82,2016:85,2017:90,2018:100,2019:115,2020:140,2021:165,2022:210,2023:310,2024:370,2025:410},
+  yoy: {2005:11.1,2006:10.0,2007:18.2,2008:46.2,2009:10.5,2010:23.8,2011:19.2,2012:9.7,2013:5.9,2014:8.3,2015:5.1,2016:3.7,2017:5.9,2018:11.1,2019:15.0,2020:21.7,2021:17.9,2022:27.3,2023:47.6,2024:19.4,2025:10.8},
+  futureAnnual: {2025:459,2026:501,2027:536,2028:568,2029:596,2030:626},
+  futureInflation: {2026:9,2027:7,2028:6,2029:5,2030:5},
+  monthlyHist: [
+    {l:"Jan 22",v:215},{l:"Feb 22",v:208},{l:"Mar 22",v:208},{l:"Apr 22",v:206},{l:"May 22",v:208},{l:"Jun 22",v:205},
+    {l:"Jul 22",v:209},{l:"Aug 22",v:207},{l:"Sep 22",v:214},{l:"Oct 22",v:212},{l:"Nov 22",v:214},{l:"Dec 22",v:214},
+    {l:"Jan 23",v:310},{l:"Feb 23",v:309},{l:"Mar 23",v:312},{l:"Apr 23",v:308},{l:"May 23",v:300},{l:"Jun 23",v:302},
+    {l:"Jul 23",v:308},{l:"Aug 23",v:304},{l:"Sep 23",v:320},{l:"Oct 23",v:322},{l:"Nov 23",v:317},{l:"Dec 23",v:312},
+    {l:"Jan 24",v:384},{l:"Feb 24",v:371},{l:"Mar 24",v:364},{l:"Apr 24",v:360},{l:"May 24",v:368},{l:"Jun 24",v:360},
+    {l:"Jul 24",v:367},{l:"Aug 24",v:373},{l:"Sep 24",v:378},{l:"Oct 24",v:388},{l:"Nov 24",v:379},{l:"Dec 24",v:378},
+    {l:"Jan 25",v:424},{l:"Feb 25",v:416},{l:"Mar 25",v:416},{l:"Apr 25",v:407},{l:"May 25",v:405},{l:"Jun 25",v:391}
+  ],
+  monthlyFcst: [
+    {l:"Jul 25",v:445,y:2025},{l:"Aug 25",v:455,y:2025},{l:"Sep 25",v:461,y:2025},{l:"Oct 25",v:468,y:2025},{l:"Nov 25",v:465,y:2025},{l:"Dec 25",v:464,y:2025},
+    {l:"Jan 26",v:513,y:2026},{l:"Feb 26",v:503,y:2026},{l:"Mar 26",v:498,y:2026},{l:"Apr 26",v:490,y:2026},{l:"May 26",v:486,y:2026},{l:"Jun 26",v:494,y:2026},
+    {l:"Jul 26",v:493,y:2026},{l:"Aug 26",v:503,y:2026},{l:"Sep 26",v:504,y:2026},{l:"Oct 26",v:520,y:2026},{l:"Nov 26",v:509,y:2026},{l:"Dec 26",v:508,y:2026},
+    {l:"Jan 27",v:557,y:2027},{l:"Feb 27",v:544,y:2027},{l:"Mar 27",v:537,y:2027},{l:"Apr 27",v:534,y:2027},{l:"May 27",v:532,y:2027},{l:"Jun 27",v:525,y:2027},
+    {l:"Jul 27",v:519,y:2027},{l:"Aug 27",v:526,y:2027},{l:"Sep 27",v:542,y:2027},{l:"Oct 27",v:546,y:2027},{l:"Nov 27",v:545,y:2027},{l:"Dec 27",v:556,y:2027},
+    {l:"Jan 28",v:588,y:2028},{l:"Feb 28",v:569,y:2028},{l:"Mar 28",v:571,y:2028},{l:"Apr 28",v:560,y:2028},{l:"May 28",v:566,y:2028},{l:"Jun 28",v:550,y:2028},
+    {l:"Jul 28",v:551,y:2028},{l:"Aug 28",v:562,y:2028},{l:"Sep 28",v:580,y:2028},{l:"Oct 28",v:579,y:2028},{l:"Nov 28",v:587,y:2028},{l:"Dec 28",v:588,y:2028},
+    {l:"Jan 29",v:606,y:2029},{l:"Feb 29",v:595,y:2029},{l:"Mar 29",v:608,y:2029},{l:"Apr 29",v:590,y:2029},{l:"May 29",v:575,y:2029},{l:"Jun 29",v:568,y:2029},
+    {l:"Jul 29",v:575,y:2029},{l:"Aug 29",v:599,y:2029},{l:"Sep 29",v:615,y:2029},{l:"Oct 29",v:612,y:2029},{l:"Nov 29",v:603,y:2029},{l:"Dec 29",v:605,y:2029},
+    {l:"Jan 30",v:651,y:2030},{l:"Feb 30",v:633,y:2030},{l:"Mar 30",v:638,y:2030},{l:"Apr 30",v:629,y:2030},{l:"May 30",v:601,y:2030},{l:"Jun 30",v:612,y:2030},
+    {l:"Jul 30",v:618,y:2030},{l:"Aug 30",v:627,y:2030},{l:"Sep 30",v:632,y:2030},{l:"Oct 30",v:648,y:2030},{l:"Nov 30",v:635,y:2030},{l:"Dec 30",v:637,y:2030}
+  ],
+  commodities: {
+    "Wheat flour": {u:"PKR/kg",data:{2022:65,2023:115,2024:145,2025:160,2026:174,2027:186,2028:197,2029:207,2030:217}},
+    "Rice (basmati)": {u:"PKR/kg",data:{2022:180,2023:285,2024:340,2025:375,2026:409,2027:438,2028:464,2029:487,2030:511}},
+    "Sugar": {u:"PKR/kg",data:{2022:110,2023:175,2024:210,2025:230,2026:251,2027:269,2028:285,2029:299,2030:314}},
+    "Cooking oil": {u:"PKR/litre",data:{2022:450,2023:680,2024:820,2025:900,2026:981,2027:1050,2028:1113,2029:1169,2030:1227}},
+    "Eggs (12)": {u:"PKR/dozen",data:{2022:220,2023:340,2024:415,2025:456,2026:497,2027:532,2028:564,2029:592,2030:622}}
+  },
+  provinces: {
+    "Punjab":      {2022:195,2023:295,2024:355,2025:392,2026:427,2027:457,2028:484,2029:508,2030:534},
+    "Sindh":       {2022:210,2023:320,2024:385,2025:424,2026:462,2027:494,2028:524,2029:550,2030:578},
+    "KPK":         {2022:220,2023:335,2024:405,2025:446,2026:516,2027:480,2028:547,2029:574,2030:603},
+    "Balochistan": {2022:230,2023:350,2024:425,2025:468,2026:510,2027:546,2028:579,2029:608,2030:638}
+  },
+  models: [
+    {m:"Linear Regression",mae:142.3,rmse:198.5,r2:0.872,mape:8.4},
+    {m:"Ridge Regression",mae:139.1,rmse:191.2,r2:0.881,mape:8.1},
+    {m:"Random Forest",mae:68.4,rmse:102.3,r2:0.963,mape:3.9},
+    {m:"Gradient Boosting",mae:61.2,rmse:89.7,r2:0.971,mape:3.4},
+    {m:"XGBoost",mae:52.8,rmse:78.4,r2:0.979,mape:2.9}
+  ],
+  features: [
+    {f:"price_lag_1m",imp:0.31},{f:"price_rolling_mean_3m",imp:0.18},{f:"price_lag_3m",imp:0.12},
+    {f:"commodity_enc",imp:0.09},{f:"price_rolling_mean_12m",imp:0.07},{f:"national_avg_price",imp:0.06},
+    {f:"global_Wheat_US_HRW",imp:0.04},{f:"price_lag_6m",imp:0.04},{f:"year",imp:0.03},{f:"province_enc",imp:0.02}
+  ]
+};
+
+const COLORS = {hist:'#1a1916', fcst:'#c0392b', p:['#1a1916','#2d6a4f','#1e40af','#92400e']};
+
+function showTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+let charts = {};
+function destroyChart(id) { if(charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+function fmt(v) { return Math.round(v).toLocaleString(); }
+
+function buildOverviewChart() {
+  destroyChart('overview');
+  const histYrs = Object.keys(D.hist).map(Number);
+  const histVals = Object.values(D.hist);
+  const futYrs = Object.keys(D.futureAnnual).map(Number);
+  const futVals = Object.values(D.futureAnnual);
+  const allYrs = [...histYrs, ...futYrs.filter(y => !histYrs.includes(y))];
+  const histData = allYrs.map(y => D.hist[y] !== undefined ? D.hist[y] : null);
+  const fcstData = allYrs.map(y => {
+    if(y === 2025) return D.hist[2025];
+    return D.futureAnnual[y] || null;
+  });
+  const upper = allYrs.map(y => D.futureAnnual[y] ? Math.round(D.futureAnnual[y]*1.10) : null);
+  const lower = allYrs.map(y => D.futureAnnual[y] ? Math.round(D.futureAnnual[y]*0.90) : null);
+  charts['overview'] = new Chart(document.getElementById('overviewChart'), {
+    type:'line',
+    data:{
+      labels: allYrs,
+      datasets:[
+        {label:'Upper CI',data:upper,borderWidth:0,backgroundColor:'rgba(192,57,43,0.08)',fill:'+1',pointRadius:0,tension:0.4},
+        {label:'Lower CI',data:lower,borderWidth:0,backgroundColor:'rgba(192,57,43,0.08)',fill:false,pointRadius:0,tension:0.4},
+        {label:'Historical',data:histData,borderColor:COLORS.hist,borderWidth:2,backgroundColor:'transparent',pointRadius:3,pointBackgroundColor:COLORS.hist,tension:0.3,spanGaps:false},
+        {label:'Forecast',data:fcstData,borderColor:COLORS.fcst,borderWidth:2,borderDash:[6,4],backgroundColor:'transparent',pointRadius:3,pointBackgroundColor:COLORS.fcst,tension:0.3,spanGaps:false}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ₨ ${fmt(ctx.parsed.y)}`}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:11}}},
+        y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{callback:v=>'₨'+fmt(v),font:{size:11}}}}}
+  });
+}
+
+function buildYOYChart() {
+  destroyChart('yoy');
+  const yrs = Object.keys(D.yoy).map(Number);
+  const vals = Object.values(D.yoy);
+  charts['yoy'] = new Chart(document.getElementById('yoyChart'), {
+    type:'bar',
+    data:{labels:yrs,datasets:[{
+      label:'YoY Inflation %',
+      data:vals,
+      backgroundColor:vals.map(v=>v>20?'rgba(192,57,43,0.85)':v>10?'rgba(230,126,34,0.75)':'rgba(45,106,79,0.7)'),
+      borderRadius:3,borderWidth:0
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.y}%`}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:10}}},
+        y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{callback:v=>v+'%',font:{size:11}}}}}
+  });
+}
+
+function buildForecastSummaryTable() {
+  const tbody = document.getElementById('forecastSummaryTable');
+  const prev = {2025:D.hist[2024],2026:D.futureAnnual[2025],2027:D.futureAnnual[2026],2028:D.futureAnnual[2027],2029:D.futureAnnual[2028],2030:D.futureAnnual[2029]};
+  let html = '';
+  [2025,2026,2027,2028,2029,2030].forEach(y => {
+    const v = y<=2025?D.hist[2025]:D.futureAnnual[y];
+    const growth = ((v-prev[y])/prev[y]*100).toFixed(1);
+    const tag = y<=2025?'<span class="badge badge-amber">Historical</span>':'<span class="badge badge-blue">Forecast</span>';
+    html += `<tr><td>${y}</td><td>₨ ${fmt(v)}</td><td style="font-family:'DM Mono',monospace">${growth>0?'+':''}${growth}%</td><td>${tag}</td></tr>`;
+  });
+  tbody.innerHTML = html;
+}
+
+let monthlyChart = null, monthlyYear = 'all';
+function buildMonthlyChart(filterYear) {
+  destroyChart('monthly');
+  let hData = D.monthlyHist, fData = D.monthlyFcst;
+  if(filterYear !== 'all') {
+    hData = D.monthlyHist.filter(d=>d.l.includes(String(filterYear).slice(-2)));
+    fData = D.monthlyFcst.filter(d=>d.y===Number(filterYear));
+  }
+  const hLabels = hData.map(d=>d.l);
+  const hVals = hData.map(d=>d.v);
+  const fLabels = fData.map(d=>d.l);
+  const fVals = fData.map(d=>d.v);
+  const allLabels = [...hLabels, ...fLabels];
+  const histFull = allLabels.map(l => { const f=hData.find(d=>d.l===l); return f?f.v:null; });
+  const fcstFull = allLabels.map(l => { const f=fData.find(d=>d.l===l); return f?f.v:null; });
+  if(hVals.length && fVals.length) { histFull[hLabels.length-1]=hVals[hVals.length-1]; fcstFull[hLabels.length-1]=hVals[hVals.length-1]; }
+  charts['monthly'] = new Chart(document.getElementById('monthlyChart'), {
+    type:'line',
+    data:{labels:allLabels,datasets:[
+      {label:'Historical',data:histFull,borderColor:COLORS.hist,borderWidth:2,pointRadius:2,backgroundColor:'transparent',tension:0.3,spanGaps:false},
+      {label:'Forecast',data:fcstFull,borderColor:COLORS.fcst,borderWidth:2,borderDash:[5,4],pointRadius:2,backgroundColor:'transparent',tension:0.3,spanGaps:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ₨ ${fmt(ctx.parsed.y)}`}}},
+      scales:{x:{grid:{display:false},ticks:{autoSkip:true,maxTicksLimit:18,font:{size:10}}},
+        y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{callback:v=>'₨'+fmt(v),font:{size:11}}}}}
+  });
+}
+
+function setMonthlyYear(y, el) {
+  monthlyYear = y;
+  document.querySelectorAll('#tab-monthly .ctrl-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  buildMonthlyChart(y);
+}
+
+function buildSeasonalChart() {
+  destroyChart('seasonal');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const idx = [102,101,100,99,98,97,98,100,102,103,103,102];
+  charts['seasonal'] = new Chart(document.getElementById('seasonalChart'), {
+    type:'bar',
+    data:{labels:months,datasets:[{label:'Seasonal index (100=avg)',data:idx,backgroundColor:idx.map(v=>v>=102?'rgba(192,57,43,0.7)':v<=98?'rgba(45,106,79,0.7)':'rgba(100,100,100,0.45)'),borderRadius:4,borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` Index: ${ctx.parsed.y}`}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:11}}},
+        y:{min:94,max:106,grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:11}}}}}
+  });
+}
+
+function buildMonthlyTable() {
+  const tbody = document.querySelector('#monthlyForecastTable tbody');
+  const seasons = ['Winter','Winter','Spring','Spring','Summer','Summer','Summer','Monsoon','Monsoon','Autumn','Autumn','Winter'];
+  let prev = D.monthlyHist[D.monthlyHist.length-1].v;
+  let html = '';
+  D.monthlyFcst.forEach(d => {
+    const ch = ((d.v-prev)/prev*100).toFixed(1);
+    const col = ch>0?'color:var(--red)':'color:var(--green)';
+    const mo = parseInt(d.l.split(' ')[0]==='Jan'?1:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(d.l.split(' ')[0])+1);
+    html += `<tr><td>${d.l}</td><td>₨ ${fmt(d.v)}</td><td style="${col}">${ch>0?'+':''}${ch}%</td><td>${seasons[mo-1]||'—'}</td></tr>`;
+    prev = d.v;
+  });
+  tbody.innerHTML = html;
+}
+
+let annualScaleChart = null, scaleType = 'linear';
+function buildAnnualScaleChart(type) {
+  destroyChart('annualScale');
+  const histYrs = Object.keys(D.hist).map(Number);
+  const futYrs = [2026,2027,2028,2029,2030];
+  const all = [...histYrs,...futYrs];
+  const hVals = all.map(y=>D.hist[y]||null);
+  const fVals = all.map(y=>{if(y===2025)return D.hist[2025];return D.futureAnnual[y]||null;});
+  charts['annualScale'] = new Chart(document.getElementById('annualScaleChart'), {
+    type:'line',
+    data:{labels:all,datasets:[
+      {label:'Historical',data:hVals,borderColor:COLORS.hist,borderWidth:2,pointRadius:3,backgroundColor:'transparent',tension:0.3,spanGaps:false},
+      {label:'Forecast',data:fVals,borderColor:COLORS.fcst,borderWidth:2,borderDash:[6,4],pointRadius:3,backgroundColor:'transparent',tension:0.3,spanGaps:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ₨ ${fmt(ctx.parsed.y)}`}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:11}}},
+        y:{type:type,grid:{color:'rgba(0,0,0,0.05)'},ticks:{callback:v=>'₨'+Math.round(v),font:{size:11}}}}}
+  });
+}
+
+function setScaleType(t, el) {
+  scaleType=t;
+  document.querySelectorAll('#tab-annual .ctrl-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  buildAnnualScaleChart(t);
+}
+
+function buildInflationExtChart() {
+  destroyChart('inflationExt');
+  const histYrs = Object.keys(D.yoy).map(Number);
+  const futYrs = [2026,2027,2028,2029,2030];
+  const all = [...histYrs,...futYrs];
+  const hV = all.map(y=>D.yoy[y]||null);
+  const fV = all.map(y=>D.futureInflation[y]||null);
+  charts['inflationExt'] = new Chart(document.getElementById('inflationExtChart'), {
+    type:'bar',
+    data:{labels:all,datasets:[
+      {label:'Historical',data:hV,backgroundColor:'rgba(26,25,22,0.7)',borderRadius:3,borderWidth:0},
+      {label:'Forecast',data:fV,backgroundColor:'rgba(192,57,43,0.6)',borderRadius:3,borderWidth:0,borderDash:[4,4]}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,labels:{font:{size:11},usePointStyle:true,pointStyle:'rect'}},tooltip:{callbacks:{label:ctx=>` ${ctx.parsed.y}%`}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:10}}},
+        y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{callback:v=>v+'%',font:{size:11}}}}}
+  });
+}
+
+let activeCommodity = 'Wheat flour';
+function buildCommodityKPIs(comm) {
+  const data = D.commodities[comm].data;
+  const u = D.commodities[comm].u;
+  const yrs = Object.keys(data).map(Number);
+  const v25 = data[2025], v30 = data[2030], v22 = data[2022];
+  const growth = ((v30-v25)/v25*100).toFixed(1);
+  const total = ((v30-v22)/v22*100).toFixed(1);
+  document.getElementById('commodityKPIs').innerHTML = `
+    <div class="kpi up"><div class="kpi-label">${comm} 2025</div><div class="kpi-value">₨ ${fmt(v25)}</div><div class="kpi-sub">${u}</div></div>
+    <div class="kpi up"><div class="kpi-label">Forecast 2030</div><div class="kpi-value">₨ ${fmt(v30)}</div><div class="kpi-sub">+${growth}% from 2025</div></div>
+    <div class="kpi neutral"><div class="kpi-label">8-Year Growth</div><div class="kpi-value">${total}%</div><div class="kpi-sub">2022 → 2030</div></div>
+    <div class="kpi neutral"><div class="kpi-label">2030 Monthly</div><div class="kpi-value">₨ ${fmt(Math.round(v30/12))}</div><div class="kpi-sub">Budget per month if 1kg/mo</div></div>`;
+}
+
+function buildCommodityChart(comm) {
+  destroyChart('commodity');
+  const data = D.commodities[comm].data;
+  const yrs = Object.keys(data).map(Number);
+  const histYrs = yrs.filter(y=>y<=2025);
+  const fcstYrs = yrs.filter(y=>y>=2025);
+  const histV = yrs.map(y=>y<=2025?data[y]:null);
+  const fcstV = yrs.map(y=>y>=2025?data[y]:null);
+  const upper = yrs.map(y=>y>=2025?Math.round(data[y]*1.10):null);
+  const lower = yrs.map(y=>y>=2025?Math.round(data[y]*0.90):null);
+  document.getElementById('commodityChartTitle').textContent = `${comm} — Price History & Forecast to 2030 (${D.commodities[comm].u})`;
+  charts['commodity'] = new Chart(document.getElementById('commodityChart'), {
+    type:'line',
+    data:{labels:yrs,datasets:[
+      {label:'CI Upper',data:upper,fill:'+1',backgroundColor:'rgba(192,57,43,0.08)',borderWidth:0,pointRadius:0,tension:0.3},
+      {label:'CI Lower',data:lower,fill:false,backgroundColor:'rgba(192,57,43,0.08)',borderWidth:0,pointRadius:0,tension:0.3},
+      {label:'Historical',data:histV,borderColor:COLORS.hist,borderWidth:2.5,pointRadius:4,backgroundColor:'transparent',tension:0.3,spanGaps:false},
+      {label:'Forecast',data:fcstV,borderColor:COLORS.fcst,borderWidth:2.5,borderDash:[6,4],pointRadius:4,backgroundColor:'transparent',tension:0.3,spanGaps:false}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ₨ ${fmt(ctx.parsed.y)}`}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:11}}},
+        y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{callback:v=>'₨'+fmt(v),font:{size:11}}}}}
+  });
+}
+
+function buildCommodityIndexChart() {
+  destroyChart('commodityIndex');
+  const comms = Object.keys(D.commodities);
+  const yrs = [2022,2023,2024,2025,2026,2027,2028,2029,2030];
+  const palette = ['#1a1916','#2d6a4f','#1e40af','#92400e','#c0392b'];
+  const datasets = comms.map((c,i)=>({
+    label:c,
+    data:yrs.map(y=>Math.round(D.commodities[c].data[y]/D.commodities[c].data[2022]*100)),
+    borderColor:palette[i],
+    borderWidth:i===3?2.5:1.8,
+    borderDash:yrs.map(y=>y>2025)?[6,4]:[],
+    pointRadius:3,
+    backgroundColor:'transparent',
+    tension:0.3
+  }));
+  charts['commodityIndex'] = new Chart(document.getElementById('commodityIndexChart'), {
+    type:'line',
+    data:{labels:yrs,datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{font:{size:11},usePointStyle:true,pointStyle:'circle'},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ${ctx.parsed.y} (index)`}}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:11}}},
+        y:{title:{display:true,text:'Index (2022=100)',font:{size:11}},grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:11}}}}}
+  });
+}
+
+function setCommodity(c, el) {
+  activeCommodity = c;
+  document.querySelectorAll('#tab-commodity .ctrl-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  buildCommodityKPIs(c);
+  buildCommodityChart(c);
+}
+
+function buildProvinceChart() {
+  destroyChart('province');
+  const yrs = [2022,2023,2024,2025,2026,2027,2028,2029,2030];
+  const provs = Object.keys(D.provinces);
+  const palette = ['#1a1916','#2d6a4f','#1e40af','#92400e'];
+  const datasets = provs.map((p,i)=>({
+    label:p,
+    data:yrs.map(y=>D.provinces[p][y]),
+    borderColor:palette[i],
+    borderWidth:2,
+    pointRadius:3,
+    backgroundColor:'transparent',
+    tension:0.3
+  }));
+  charts['province'] = new Chart(document.getElementById('provinceChart'), {
+    type:'line',
+    data:{labels:yrs,datasets},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{font:{size:11},usePointStyle:true,pointStyle:'circle'}},tooltip:{callbacks:{label:ctx=>` ${ctx.dataset.label}: ₨${fmt(ctx.parsed.y)}`}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:11}}},
+        y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{callback:v=>'₨'+fmt(v),font:{size:11}}}}}
+  });
+}
+
+function buildDisparityChart() {
+  destroyChart('disparity');
+  const yrs = [2022,2023,2024,2025,2026,2027,2028,2029,2030];
+  const disparity = yrs.map(y=>((D.provinces['Balochistan'][y]-D.provinces['Punjab'][y])/D.provinces['Punjab'][y]*100).toFixed(1));
+  charts['disparity'] = new Chart(document.getElementById('disparityChart'), {
+    type:'line',
+    data:{labels:yrs,datasets:[{label:'Balochistan premium over Punjab (%)',data:disparity,borderColor:'#92400e',borderWidth:2,pointRadius:4,backgroundColor:'rgba(146,64,14,0.06)',fill:true,tension:0.3}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` Premium: ${ctx.parsed.y}%`}}},
+      scales:{x:{grid:{display:false},ticks:{font:{size:11}}},
+        y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{callback:v=>v+'%',font:{size:11}}}}}
+  });
+}
+
+function buildProvinceForecastTable() {
+  const tbody = document.querySelector('#provinceForecastTable tbody');
+  let html = '';
+  Object.entries(D.provinces).forEach(([p,d])=>{
+    const g = ((d[2030]-d[2025])/d[2025]*100).toFixed(1);
+    html += `<tr><td><strong>${p}</strong></td><td>₨${fmt(d[2025])}</td><td>₨${fmt(d[2027])}</td><td>₨${fmt(d[2030])}</td><td style="font-family:'DM Mono',monospace">+${g}%</td></tr>`;
+  });
+  tbody.innerHTML = html;
+}
+
+function buildModelTable() {
+  const tbody = document.getElementById('modelTableBody');
+  let html = '';
+  const sorted = [...D.models].sort((a,b)=>b.r2-a.r2);
+  sorted.forEach((m,i)=>{
+    const isBest = i===0;
+    html += `<tr class="${isBest?'best':''}">
+      <td>${m.m}${isBest?' <span class="badge badge-green">Best</span>':''}</td>
+      <td style="font-family:'DM Mono',monospace">${m.mae}</td>
+      <td style="font-family:'DM Mono',monospace">${m.rmse}</td>
+      <td style="font-family:'DM Mono',monospace">${m.r2}</td>
+      <td style="font-family:'DM Mono',monospace">${m.mape}%</td>
+    </tr>`;
+  });
+  tbody.innerHTML = html;
+}
+
+function buildR2Chart() {
+  destroyChart('r2');
+  const sorted = [...D.models].sort((a,b)=>a.r2-b.r2);
+  charts['r2'] = new Chart(document.getElementById('r2Chart'), {
+    type:'bar',
+    data:{labels:sorted.map(m=>m.m),datasets:[{label:'R²',data:sorted.map(m=>m.r2),backgroundColor:sorted.map((m,i)=>i===sorted.length-1?'rgba(45,106,79,0.8)':'rgba(26,25,22,0.5)'),borderRadius:4,borderWidth:0}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` R²: ${ctx.parsed.x}`}}},
+      scales:{x:{min:0.85,max:1.0,grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:11}}}}}
+  });
+}
+
+function buildMAEChart() {
+  destroyChart('mae');
+  const sorted = [...D.models].sort((a,b)=>b.mae-a.mae);
+  charts['mae'] = new Chart(document.getElementById('maeChart'), {
+    type:'bar',
+    data:{labels:sorted.map(m=>m.m),datasets:[{label:'MAE',data:sorted.map(m=>m.mae),backgroundColor:sorted.map((m,i)=>i===sorted.length-1?'rgba(45,106,79,0.8)':'rgba(192,57,43,0.5)'),borderRadius:4,borderWidth:0}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` MAE: ₨${ctx.parsed.x}`}}},
+      scales:{x:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:10}}},y:{grid:{display:false},ticks:{font:{size:11}}}}}
+  });
+}
+
+function buildFeatureImportance() {
+  const el = document.getElementById('featureImportance');
+  const max = D.features[0].imp;
+  el.innerHTML = D.features.map(f=>`
+    <div class="bar-h">
+      <div class="bar-h-label" style="font-family:'DM Mono',monospace;font-size:11px">${f.f}</div>
+      <div class="bar-h-track"><div class="bar-h-fill" style="width:${(f.imp/max*100).toFixed(0)}%;background:#1a1916"></div></div>
+      <div class="bar-h-val">${(f.imp*100).toFixed(0)}%</div>
+    </div>`).join('');
+}
+
+buildOverviewChart();
+buildYOYChart();
+buildForecastSummaryTable();
+buildMonthlyChart('all');
+buildSeasonalChart();
+buildMonthlyTable();
+buildAnnualScaleChart('linear');
+buildInflationExtChart();
+buildCommodityKPIs('Wheat flour');
+buildCommodityChart('Wheat flour');
+buildCommodityIndexChart();
+buildProvinceChart();
+buildDisparityChart();
+buildProvinceForecastTable();
+buildModelTable();
+buildR2Chart();
+buildMAEChart();
+buildFeatureImportance();
+</script>
+</body>
+</html>

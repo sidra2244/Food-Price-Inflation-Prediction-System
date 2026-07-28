@@ -1,0 +1,734 @@
+{
+  "metadata": {
+    "title": "Pakistan Food Price Forecast 2030",
+    "model": "XGBoost",
+    "r2_score": 0.979,
+    "mape": 2.9,
+    "generated_date": "2026-05-31T03:55:37.434083",
+    "data_source": "WFP retail prices + global commodity data 2004-2025",
+    "description": "Food price forecasts for Pakistan including historical data (2004-2025) and XGBoost predictions (2025-2030)"
+  },
+  "historical_prices": {
+    "2004": 18,
+    "2005": 20,
+    "2006": 22,
+    "2007": 26,
+    "2008": 38,
+    "2009": 42,
+    "2010": 52,
+    "2011": 62,
+    "2012": 68,
+    "2013": 72,
+    "2014": 78,
+    "2015": 82,
+    "2016": 85,
+    "2017": 90,
+    "2018": 100,
+    "2019": 115,
+    "2020": 140,
+    "2021": 165,
+    "2022": 210,
+    "2023": 310,
+    "2024": 370,
+    "2025": 410
+  },
+  "annual_forecast": {
+    "2025": 410,
+    "2026": 501,
+    "2027": 536,
+    "2028": 568,
+    "2029": 596,
+    "2030": 626
+  },
+  "inflation_rates": {
+    "2005": 11.1,
+    "2006": 10.0,
+    "2007": 18.2,
+    "2008": 46.2,
+    "2009": 10.5,
+    "2010": 23.8,
+    "2011": 19.2,
+    "2012": 9.7,
+    "2013": 5.9,
+    "2014": 8.3,
+    "2015": 5.1,
+    "2016": 3.7,
+    "2017": 5.9,
+    "2018": 11.1,
+    "2019": 15.0,
+    "2020": 21.7,
+    "2021": 17.9,
+    "2022": 27.3,
+    "2023": 47.6,
+    "2024": 19.4,
+    "2025": 10.8
+  },
+  "forecast_inflation": {
+    "2026": 9,
+    "2027": 7,
+    "2028": 6,
+    "2029": 5,
+    "2030": 5
+  },
+  "monthly_forecast": [
+    {
+      "date": "Jul 25",
+      "price_pkr": 445,
+      "year": 25,
+      "month": "Jul",
+      "month_num": 7
+    },
+    {
+      "date": "Aug 25",
+      "price_pkr": 455,
+      "year": 25,
+      "month": "Aug",
+      "month_num": 8
+    },
+    {
+      "date": "Sep 25",
+      "price_pkr": 461,
+      "year": 25,
+      "month": "Sep",
+      "month_num": 9
+    },
+    {
+      "date": "Oct 25",
+      "price_pkr": 468,
+      "year": 25,
+      "month": "Oct",
+      "month_num": 10
+    },
+    {
+      "date": "Nov 25",
+      "price_pkr": 465,
+      "year": 25,
+      "month": "Nov",
+      "month_num": 11
+    },
+    {
+      "date": "Dec 25",
+      "price_pkr": 464,
+      "year": 25,
+      "month": "Dec",
+      "month_num": 12
+    },
+    {
+      "date": "Jan 26",
+      "price_pkr": 513,
+      "year": 26,
+      "month": "Jan",
+      "month_num": 1
+    },
+    {
+      "date": "Feb 26",
+      "price_pkr": 503,
+      "year": 26,
+      "month": "Feb",
+      "month_num": 2
+    },
+    {
+      "date": "Mar 26",
+      "price_pkr": 498,
+      "year": 26,
+      "month": "Mar",
+      "month_num": 3
+    },
+    {
+      "date": "Apr 26",
+      "price_pkr": 490,
+      "year": 26,
+      "month": "Apr",
+      "month_num": 4
+    },
+    {
+      "date": "May 26",
+      "price_pkr": 486,
+      "year": 26,
+      "month": "May",
+      "month_num": 5
+    },
+    {
+      "date": "Jun 26",
+      "price_pkr": 494,
+      "year": 26,
+      "month": "Jun",
+      "month_num": 6
+    },
+    {
+      "date": "Jul 26",
+      "price_pkr": 493,
+      "year": 26,
+      "month": "Jul",
+      "month_num": 7
+    },
+    {
+      "date": "Aug 26",
+      "price_pkr": 503,
+      "year": 26,
+      "month": "Aug",
+      "month_num": 8
+    },
+    {
+      "date": "Sep 26",
+      "price_pkr": 504,
+      "year": 26,
+      "month": "Sep",
+      "month_num": 9
+    },
+    {
+      "date": "Oct 26",
+      "price_pkr": 520,
+      "year": 26,
+      "month": "Oct",
+      "month_num": 10
+    },
+    {
+      "date": "Nov 26",
+      "price_pkr": 509,
+      "year": 26,
+      "month": "Nov",
+      "month_num": 11
+    },
+    {
+      "date": "Dec 26",
+      "price_pkr": 508,
+      "year": 26,
+      "month": "Dec",
+      "month_num": 12
+    },
+    {
+      "date": "Jan 27",
+      "price_pkr": 557,
+      "year": 27,
+      "month": "Jan",
+      "month_num": 1
+    },
+    {
+      "date": "Feb 27",
+      "price_pkr": 544,
+      "year": 27,
+      "month": "Feb",
+      "month_num": 2
+    },
+    {
+      "date": "Mar 27",
+      "price_pkr": 537,
+      "year": 27,
+      "month": "Mar",
+      "month_num": 3
+    },
+    {
+      "date": "Apr 27",
+      "price_pkr": 534,
+      "year": 27,
+      "month": "Apr",
+      "month_num": 4
+    },
+    {
+      "date": "May 27",
+      "price_pkr": 532,
+      "year": 27,
+      "month": "May",
+      "month_num": 5
+    },
+    {
+      "date": "Jun 27",
+      "price_pkr": 525,
+      "year": 27,
+      "month": "Jun",
+      "month_num": 6
+    },
+    {
+      "date": "Jul 27",
+      "price_pkr": 519,
+      "year": 27,
+      "month": "Jul",
+      "month_num": 7
+    },
+    {
+      "date": "Aug 27",
+      "price_pkr": 526,
+      "year": 27,
+      "month": "Aug",
+      "month_num": 8
+    },
+    {
+      "date": "Sep 27",
+      "price_pkr": 542,
+      "year": 27,
+      "month": "Sep",
+      "month_num": 9
+    },
+    {
+      "date": "Oct 27",
+      "price_pkr": 546,
+      "year": 27,
+      "month": "Oct",
+      "month_num": 10
+    },
+    {
+      "date": "Nov 27",
+      "price_pkr": 545,
+      "year": 27,
+      "month": "Nov",
+      "month_num": 11
+    },
+    {
+      "date": "Dec 27",
+      "price_pkr": 556,
+      "year": 27,
+      "month": "Dec",
+      "month_num": 12
+    },
+    {
+      "date": "Jan 28",
+      "price_pkr": 588,
+      "year": 28,
+      "month": "Jan",
+      "month_num": 1
+    },
+    {
+      "date": "Feb 28",
+      "price_pkr": 569,
+      "year": 28,
+      "month": "Feb",
+      "month_num": 2
+    },
+    {
+      "date": "Mar 28",
+      "price_pkr": 571,
+      "year": 28,
+      "month": "Mar",
+      "month_num": 3
+    },
+    {
+      "date": "Apr 28",
+      "price_pkr": 560,
+      "year": 28,
+      "month": "Apr",
+      "month_num": 4
+    },
+    {
+      "date": "May 28",
+      "price_pkr": 566,
+      "year": 28,
+      "month": "May",
+      "month_num": 5
+    },
+    {
+      "date": "Jun 28",
+      "price_pkr": 550,
+      "year": 28,
+      "month": "Jun",
+      "month_num": 6
+    },
+    {
+      "date": "Jul 28",
+      "price_pkr": 551,
+      "year": 28,
+      "month": "Jul",
+      "month_num": 7
+    },
+    {
+      "date": "Aug 28",
+      "price_pkr": 562,
+      "year": 28,
+      "month": "Aug",
+      "month_num": 8
+    },
+    {
+      "date": "Sep 28",
+      "price_pkr": 580,
+      "year": 28,
+      "month": "Sep",
+      "month_num": 9
+    },
+    {
+      "date": "Oct 28",
+      "price_pkr": 579,
+      "year": 28,
+      "month": "Oct",
+      "month_num": 10
+    },
+    {
+      "date": "Nov 28",
+      "price_pkr": 587,
+      "year": 28,
+      "month": "Nov",
+      "month_num": 11
+    },
+    {
+      "date": "Dec 28",
+      "price_pkr": 588,
+      "year": 28,
+      "month": "Dec",
+      "month_num": 12
+    },
+    {
+      "date": "Jan 29",
+      "price_pkr": 606,
+      "year": 29,
+      "month": "Jan",
+      "month_num": 1
+    },
+    {
+      "date": "Feb 29",
+      "price_pkr": 595,
+      "year": 29,
+      "month": "Feb",
+      "month_num": 2
+    },
+    {
+      "date": "Mar 29",
+      "price_pkr": 608,
+      "year": 29,
+      "month": "Mar",
+      "month_num": 3
+    },
+    {
+      "date": "Apr 29",
+      "price_pkr": 590,
+      "year": 29,
+      "month": "Apr",
+      "month_num": 4
+    },
+    {
+      "date": "May 29",
+      "price_pkr": 575,
+      "year": 29,
+      "month": "May",
+      "month_num": 5
+    },
+    {
+      "date": "Jun 29",
+      "price_pkr": 568,
+      "year": 29,
+      "month": "Jun",
+      "month_num": 6
+    },
+    {
+      "date": "Jul 29",
+      "price_pkr": 575,
+      "year": 29,
+      "month": "Jul",
+      "month_num": 7
+    },
+    {
+      "date": "Aug 29",
+      "price_pkr": 599,
+      "year": 29,
+      "month": "Aug",
+      "month_num": 8
+    },
+    {
+      "date": "Sep 29",
+      "price_pkr": 615,
+      "year": 29,
+      "month": "Sep",
+      "month_num": 9
+    },
+    {
+      "date": "Oct 29",
+      "price_pkr": 612,
+      "year": 29,
+      "month": "Oct",
+      "month_num": 10
+    },
+    {
+      "date": "Nov 29",
+      "price_pkr": 603,
+      "year": 29,
+      "month": "Nov",
+      "month_num": 11
+    },
+    {
+      "date": "Dec 29",
+      "price_pkr": 605,
+      "year": 29,
+      "month": "Dec",
+      "month_num": 12
+    },
+    {
+      "date": "Jan 30",
+      "price_pkr": 651,
+      "year": 30,
+      "month": "Jan",
+      "month_num": 1
+    },
+    {
+      "date": "Feb 30",
+      "price_pkr": 633,
+      "year": 30,
+      "month": "Feb",
+      "month_num": 2
+    },
+    {
+      "date": "Mar 30",
+      "price_pkr": 638,
+      "year": 30,
+      "month": "Mar",
+      "month_num": 3
+    },
+    {
+      "date": "Apr 30",
+      "price_pkr": 629,
+      "year": 30,
+      "month": "Apr",
+      "month_num": 4
+    },
+    {
+      "date": "May 30",
+      "price_pkr": 601,
+      "year": 30,
+      "month": "May",
+      "month_num": 5
+    },
+    {
+      "date": "Jun 30",
+      "price_pkr": 612,
+      "year": 30,
+      "month": "Jun",
+      "month_num": 6
+    },
+    {
+      "date": "Jul 30",
+      "price_pkr": 618,
+      "year": 30,
+      "month": "Jul",
+      "month_num": 7
+    },
+    {
+      "date": "Aug 30",
+      "price_pkr": 627,
+      "year": 30,
+      "month": "Aug",
+      "month_num": 8
+    },
+    {
+      "date": "Sep 30",
+      "price_pkr": 632,
+      "year": 30,
+      "month": "Sep",
+      "month_num": 9
+    },
+    {
+      "date": "Oct 30",
+      "price_pkr": 648,
+      "year": 30,
+      "month": "Oct",
+      "month_num": 10
+    },
+    {
+      "date": "Nov 30",
+      "price_pkr": 635,
+      "year": 30,
+      "month": "Nov",
+      "month_num": 11
+    },
+    {
+      "date": "Dec 30",
+      "price_pkr": 637,
+      "year": 30,
+      "month": "Dec",
+      "month_num": 12
+    }
+  ],
+  "commodities": {
+    "Wheat flour": {
+      "unit": "PKR/kg",
+      "prices": {
+        "2022": 65,
+        "2023": 115,
+        "2024": 145,
+        "2025": 160,
+        "2026": 174,
+        "2027": 186,
+        "2028": 197,
+        "2029": 207,
+        "2030": 217
+      }
+    },
+    "Rice (basmati)": {
+      "unit": "PKR/kg",
+      "prices": {
+        "2022": 180,
+        "2023": 285,
+        "2024": 340,
+        "2025": 375,
+        "2026": 409,
+        "2027": 438,
+        "2028": 464,
+        "2029": 487,
+        "2030": 511
+      }
+    },
+    "Sugar": {
+      "unit": "PKR/kg",
+      "prices": {
+        "2022": 110,
+        "2023": 175,
+        "2024": 210,
+        "2025": 230,
+        "2026": 251,
+        "2027": 269,
+        "2028": 285,
+        "2029": 299,
+        "2030": 314
+      }
+    },
+    "Cooking oil": {
+      "unit": "PKR/litre",
+      "prices": {
+        "2022": 450,
+        "2023": 680,
+        "2024": 820,
+        "2025": 900,
+        "2026": 981,
+        "2027": 1050,
+        "2028": 1113,
+        "2029": 1169,
+        "2030": 1227
+      }
+    },
+    "Eggs (12)": {
+      "unit": "PKR/dozen",
+      "prices": {
+        "2022": 220,
+        "2023": 340,
+        "2024": 415,
+        "2025": 456,
+        "2026": 497,
+        "2027": 532,
+        "2028": 564,
+        "2029": 592,
+        "2030": 622
+      }
+    }
+  },
+  "provinces": {
+    "Punjab": {
+      "2022": 195,
+      "2023": 295,
+      "2024": 355,
+      "2025": 392,
+      "2026": 427,
+      "2027": 457,
+      "2028": 484,
+      "2029": 508,
+      "2030": 534
+    },
+    "Sindh": {
+      "2022": 210,
+      "2023": 320,
+      "2024": 385,
+      "2025": 424,
+      "2026": 462,
+      "2027": 494,
+      "2028": 524,
+      "2029": 550,
+      "2030": 578
+    },
+    "KPK": {
+      "2022": 220,
+      "2023": 335,
+      "2024": 405,
+      "2025": 446,
+      "2026": 516,
+      "2027": 540,
+      "2028": 547,
+      "2029": 574,
+      "2030": 603
+    },
+    "Balochistan": {
+      "2022": 230,
+      "2023": 350,
+      "2024": 425,
+      "2025": 468,
+      "2026": 510,
+      "2027": 546,
+      "2028": 579,
+      "2029": 608,
+      "2030": 638
+    }
+  },
+  "model_metrics": [
+    {
+      "model": "Linear Regression",
+      "mae": 142.3,
+      "rmse": 198.5,
+      "r2": 0.872,
+      "mape": 8.4
+    },
+    {
+      "model": "Ridge Regression",
+      "mae": 139.1,
+      "rmse": 191.2,
+      "r2": 0.881,
+      "mape": 8.1
+    },
+    {
+      "model": "Random Forest",
+      "mae": 68.4,
+      "rmse": 102.3,
+      "r2": 0.963,
+      "mape": 3.9
+    },
+    {
+      "model": "Gradient Boosting",
+      "mae": 61.2,
+      "rmse": 89.7,
+      "r2": 0.971,
+      "mape": 3.4
+    },
+    {
+      "model": "XGBoost",
+      "mae": 52.8,
+      "rmse": 78.4,
+      "r2": 0.979,
+      "mape": 2.9
+    }
+  ],
+  "feature_importance": [
+    {
+      "feature": "price_lag_1m",
+      "importance": 0.31
+    },
+    {
+      "feature": "price_rolling_mean_3m",
+      "importance": 0.18
+    },
+    {
+      "feature": "price_lag_3m",
+      "importance": 0.12
+    },
+    {
+      "feature": "commodity_enc",
+      "importance": 0.09
+    },
+    {
+      "feature": "price_rolling_mean_12m",
+      "importance": 0.07
+    },
+    {
+      "feature": "national_avg_price",
+      "importance": 0.06
+    },
+    {
+      "feature": "global_Wheat_US_HRW",
+      "importance": 0.04
+    },
+    {
+      "feature": "price_lag_6m",
+      "importance": 0.04
+    },
+    {
+      "feature": "year",
+      "importance": 0.03
+    },
+    {
+      "feature": "province_enc",
+      "importance": 0.02
+    }
+  ]
+}
